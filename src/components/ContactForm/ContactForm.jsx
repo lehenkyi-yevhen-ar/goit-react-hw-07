@@ -8,7 +8,7 @@ import {
 } from "formik"
 import s from "./ContactForm.module.css"
 import { validationSchema } from "../../helpers/validationSchema"
-import { addContacts } from "../../redux/contactsOps"
+import { addContacts } from "../../redux/contactOps"
 
 const ContactForm = () => {
   const initialValues = { name: "", phone: "" }

@@ -1,9 +1,14 @@
-import { createSlice } from "@reduxjs/toolkit"
+import {
+  createSelector,
+  createSlice,
+  isAnyOf,
+} from "@reduxjs/toolkit"
 import {
   addContacts,
   deleteContacts,
   fetchContacts,
-} from "./contactsOps"
+} from "./contactOps"
+import { selectFilterStr } from "./filtersSlice"
 
 const initialState = {
   items: [],
@@ -14,16 +19,6 @@ const initialState = {
 const slice = createSlice({
   name: "contacts",
   initialState,
-  // reducers: {
-  //   addContact: (state, action) => {
-  //     state.items.push(action.payload)
-  //   },
-  //   deleteContact: (state, action) => {
-  //     state.items = state.items.filter(
-  //       (item) => item.id !== action.payload
-  //     )
-  //   },
-  // },
   extraReducers: (builder) => {
     builder
       .addCase(
@@ -46,13 +41,62 @@ const slice = createSlice({
           state.items.push(action.payload)
         }
       )
+      .addMatcher(
+        isAnyOf(
+          fetchContacts.pending,
+          deleteContacts.pending,
+          addContacts.pending
+        ),
+        (state) => {
+          state.isLoading = true
+        }
+      )
+      .addMatcher(
+        isAnyOf(
+          fetchContacts.fulfilled,
+          deleteContacts.fulfilled,
+          addContacts.fulfilled
+        ),
+        (state) => {
+          state.isLoading = false
+        }
+      )
+      .addMatcher(
+        isAnyOf(
+          fetchContacts.rejected,
+          deleteContacts.rejected,
+          addContacts.rejected
+        ),
+        (state, action) => {
+          state.isLoading = false
+          state.isError = action.payload
+        }
+      )
   },
 })
 
 export const contactsReducer = slice.reducer
 
-// export const { addContact, deleteContact } =
-//   slice.actions
-
 export const selectContacts = (state) =>
   state.contacts.items
+
+export const selectIsLoading = (state) =>
+  state.contacts.isLoading
+
+export const selectIsError = (state) =>
+  state.contacts.isError
+
+export const selectFilteredContacts =
+  createSelector(
+    [selectContacts, selectFilterStr],
+    (contacts, filter) => {
+      const filteredContacts = contacts.filter(
+        (contact) =>
+          contact.name
+            .toLowerCase()
+            .trim()
+            .includes(filter.toLowerCase().trim())
+      )
+      return filteredContacts
+    }
+  )
