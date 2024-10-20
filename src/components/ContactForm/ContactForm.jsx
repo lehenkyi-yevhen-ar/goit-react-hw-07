@@ -1,4 +1,3 @@
-import { nanoid } from "@reduxjs/toolkit"
 import { useDispatch } from "react-redux"
 import {
   ErrorMessage,
@@ -8,7 +7,7 @@ import {
 } from "formik"
 import s from "./ContactForm.module.css"
 import { validationSchema } from "../../helpers/validationSchema"
-import { addContacts } from "../../redux/contactOps"
+import { addContacts } from "../../redux/contactsOps"
 
 const ContactForm = () => {
   const initialValues = { name: "", phone: "" }
@@ -16,7 +15,7 @@ const ContactForm = () => {
 
   const onSubmit = (values, options) => {
     const newContact = {
-      id: nanoid(),
+      id: [],
       name: values.name,
       phone: values.phone,
     }
